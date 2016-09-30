@@ -2,32 +2,19 @@ package com.theironyard.charlotte;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
-    private static List<MudConnection> concurrentSockets = new ArrayList<>();
+    public static final Map<String, MudConnection> connections = Collections.synchronizedMap(new HashMap<>());
 
     private static void initializeConnections(ServerSocket server) {
         Runnable r = () -> {
             try {
                 while (true) {
                     MudConnection mc = new MudConnection(server.accept());
-
-                    mc.getCallbacks().add(t -> {
-                        Runnable r2 = () -> concurrentSockets.forEach(mc2 -> {
-                            try {
-                                mc2.getOut().write(String.format("From Server: %s\n", t));
-                                mc2.getOut().flush();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
-
-                        new Thread(r2).start();
-                    });
-
-                    concurrentSockets.add(mc);
+                    connections.put("")
                     System.out.println("Person Connected.");
                 }
             } catch (IOException e) {
@@ -44,9 +31,8 @@ public class Main {
         }
     }
 
-
     private static void broadcastText(String input) {
-        concurrentSockets.forEach(mc -> {
+        connections.forEach(mc -> {
             Runnable r = () -> {
                 try {
                     mc.getOut().write(input);
