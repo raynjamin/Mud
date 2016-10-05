@@ -21,7 +21,15 @@ public class Connection {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new OutputStreamWriter(socket.getOutputStream());
         } catch (IOException e) {
-            testLogger.severe("Could not setup I/O for user socket.");
+            logger.severe("Could not setup I/O for user socket.");
+        }
+    }
+
+    public void close() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            MudServer.logger.severe(e.getMessage());
         }
     }
 
@@ -31,7 +39,7 @@ public class Connection {
         try {
             line = reader.readLine();
         } catch (IOException e) {
-            testLogger.severe("Failed to read input from client");
+            logger.severe("Failed to read input from client");
         }
 
         return line;
@@ -40,11 +48,11 @@ public class Connection {
     public void sendLineToClient(String line) {
         try {
             if (!socket.isClosed()) {
-                writer.write(line);
+                writer.write(line + (line.endsWith("\n") ? "" : "\n"));
                 writer.flush();
             }
         } catch (IOException e) {
-            testLogger.severe("Unable to send message to client");
+            logger.severe("Unable to send message to client");
         }
     }
 

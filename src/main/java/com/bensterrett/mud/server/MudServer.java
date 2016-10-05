@@ -1,5 +1,7 @@
 package com.bensterrett.mud.server;
 
+import com.bensterrett.mud.async.ConnectionThread;
+import com.bensterrett.mud.commands.Action;
 import com.bensterrett.mud.entities.User;
 
 import java.io.IOException;
@@ -7,6 +9,7 @@ import java.net.ServerSocket;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -14,44 +17,62 @@ import java.util.logging.Logger;
  * Created by Ben on 9/30/16.
  */
 public class MudServer {
-    public static Logger testLogger = Logger.getAnonymousLogger();
-    public static Thread connectionsThread;
+    public static Logger logger = Logger.getAnonymousLogger();
     public static Map<String, User> users = Collections.synchronizedMap(new HashMap<>());
+    public static LinkedBlockingQueue<Action> asyncCommandQueue = new LinkedBlockingQueue<>();
 
     static {
         try {
-            testLogger.addHandler(new FileHandler());
+            logger.addHandler(new FileHandler());
         } catch (IOException e) {
-            testLogger.severe("FAILED TO INITIALIZE FILE HANDLER");
+            logger.severe("FAILED TO INITIALIZE FILE HANDLER");
         }
     }
 
     public static void main(String[] args) throws IOException {
         ServerSocket server = new ServerSocket(Integer.valueOf(args[0]));
 
-        connectionsThread = beginAcceptConnectionsThread(server);
+        // spin up connections thread
+        acceptConnections(server);
+
+        // spin up command thread.
+        processUserActions();
     }
 
-    public static Thread beginAcceptConnectionsThread(ServerSocket server) {
-        Runnable r = () -> {
+    public static void processUserActions() {
+        new Thread(() -> {
+            while (true) {
+                Action a = null;
+
+                try {
+                    a = asyncCommandQueue.take();
+                } catch (InterruptedException e) {
+                    logger.severe("Could not pull action from queue");
+                }
+
+                a.getCommand().accept(a);
+            }
+        }).start();
+    }
+
+    public static void acceptConnections(ServerSocket server) {
+        new Thread(() -> {
             while (true) {
                 try {
                     Connection conn = new Connection(server.accept());
 
-                    User user = conn.loginUser();
+                    new ConnectionThread(conn, c -> {
+                        User u = c.loginUser();
 
-                    users.put(user.getName(), user);
+                        users.put(u.getName(), u);
+
+                        c.sendLineToClient("Welcome To The Mud.");
+                    }).start();
 
                 } catch (IOException e) {
-                    testLogger.severe("Unable to accept connection.");
+                    logger.severe("Unable to accept connection.");
                 }
             }
-        };
-
-        Thread t = new Thread(r);
-
-        t.start();
-
-        return t;
+        }).start();
     }
 }
