@@ -26,7 +26,10 @@ public class User {
     public void beginInputThread() {
         new ConnectionThread(connection, (conn) -> {
             while (true) {
+                if (conn.isClosed()) break;
+
                 String text = conn.readLineFromClient();
+
                 String[] words = text.split(" ");
                 String[] rest = Arrays.copyOfRange(words, 1, words.length);
 

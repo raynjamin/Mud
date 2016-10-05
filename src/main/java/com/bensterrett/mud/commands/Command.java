@@ -11,6 +11,7 @@ public class Command {
     protected static final HashMap<String, Consumer<Action>> COMMAND_TABLE = new HashMap<>();
 
     static {
+        COMMAND_TABLE.put("'", Global::say);
         COMMAND_TABLE.put("say", Global::say);
         COMMAND_TABLE.put("quit", Global::quit);
     }

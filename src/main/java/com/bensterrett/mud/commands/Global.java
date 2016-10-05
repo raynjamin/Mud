@@ -36,6 +36,8 @@ public class Global {
     public static void quit(Action action) {
         Connection conn = action.getActor().getConnection();
         conn.sendLineToClient("Goodbye for now!");
+
+        MudServer.users.remove(action.getActor());
         conn.close();
     }
 }

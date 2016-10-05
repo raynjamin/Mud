@@ -37,9 +37,11 @@ public class Connection {
         String line = "";
 
         try {
-            line = reader.readLine();
+            if (!socket.isClosed()) {
+                line = reader.readLine();
+            }
         } catch (IOException e) {
-            logger.severe("Failed to read input from client");
+            logger.info("Closing socket connection");
         }
 
         return line;
@@ -63,4 +65,10 @@ public class Connection {
 
         return new User(name, this);
     }
+
+    public boolean isClosed() {
+        return socket.isClosed();
+    }
+
+
 }
