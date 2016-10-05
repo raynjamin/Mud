@@ -1,5 +1,6 @@
 package com.bensterrett.mud.entities;
 
+import com.bensterrett.mud.area.Room;
 import com.bensterrett.mud.async.ConnectionThread;
 import com.bensterrett.mud.commands.Action;
 import com.bensterrett.mud.commands.Command;
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
  * Created by Ben on 9/30/16.
  */
 public class User {
+    private Room room;
     private String name;
     private Connection connection;
 
@@ -20,6 +22,7 @@ public class User {
         this.name = name;
         this.connection = connection;
 
+        Room.changeRooms(this, MudServer.world.getRooms().get(0));
         beginInputThread();
     }
 
@@ -50,5 +53,13 @@ public class User {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 }

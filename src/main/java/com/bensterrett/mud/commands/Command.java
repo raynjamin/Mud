@@ -14,21 +14,28 @@ public class Command {
         COMMAND_TABLE.put("'", Global::say);
         COMMAND_TABLE.put("say", Global::say);
         COMMAND_TABLE.put("quit", Global::quit);
+        COMMAND_TABLE.put("look", Global::look);
+        COMMAND_TABLE.put("north", Global::north);
+        COMMAND_TABLE.put("south", Global::south);
+        COMMAND_TABLE.put("east", Global::east);
+        COMMAND_TABLE.put("west", Global::west);
     }
 
     public static Consumer<Action> interpretCommand(String commandText) {
-        if (COMMAND_TABLE.containsKey(commandText)) {
-            return COMMAND_TABLE.get(commandText);
+        String lowerCommandText = commandText.toLowerCase();
+
+        if (COMMAND_TABLE.containsKey(lowerCommandText)) {
+            return COMMAND_TABLE.get(lowerCommandText);
         } else {
             Optional<String> command =
                     COMMAND_TABLE.keySet()
                         .stream()
-                        .filter(c -> c.startsWith(commandText))
+                        .filter(c -> c.startsWith(lowerCommandText))
                         .findFirst();
 
             if (command.isPresent()) {
                 // caching this lookup for future command lookup.
-                COMMAND_TABLE.put(commandText, COMMAND_TABLE.get(command.get()));
+                COMMAND_TABLE.put(lowerCommandText, COMMAND_TABLE.get(command.get()));
 
                 return COMMAND_TABLE.get(command.get());
             } else {
