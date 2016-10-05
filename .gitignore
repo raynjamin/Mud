@@ -1,3 +1,4 @@
 .idea/modules.xml
 target/
 .idea/workspace.xml
+pants.pem

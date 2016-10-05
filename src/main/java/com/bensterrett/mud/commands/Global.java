@@ -54,8 +54,6 @@ public class Global {
                 conn.sendLineToClient(String.format("%s is standing here.", u.getName()));
             }
         });
-
-        conn.sendLineToClient(Room.exits(actor.getRoom()));
     }
 
     public static void north(Action action) {

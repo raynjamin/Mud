@@ -71,11 +71,13 @@ public class MudServer {
 
                 try {
                     a = asyncCommandQueue.take();
+
                 } catch (InterruptedException e) {
                     logger.severe("Could not pull action from queue");
                 }
 
                 a.getCommand().accept(a);
+                a.getActor().getConnection().sendLineToClient(Room.exits(a.getActor().getRoom()));
             }
         }).start();
     }
