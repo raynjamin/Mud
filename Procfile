@@ -1,1 +1,0 @@
-web: java -jar target/mud-1.0-SNAPSHOT.jar
