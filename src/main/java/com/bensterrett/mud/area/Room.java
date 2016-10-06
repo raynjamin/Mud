@@ -11,6 +11,7 @@ import java.util.List;
  * Created by Ben on 10/4/16.
  */
 public class Room {
+    int number;
     String title;
     String description;
     Area area;

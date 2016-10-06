@@ -12,9 +12,6 @@ public class Action {
     private User actor;
     private String[] arguments;
 
-    public Action() {
-    }
-
     public Action(Consumer<Action> command, User actor, String[] arguments) {
         this.command = command;
         this.actor = actor;

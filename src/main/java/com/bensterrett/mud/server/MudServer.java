@@ -89,9 +89,18 @@ public class MudServer {
                     Connection conn = new Connection(server.accept());
 
                     new ConnectionThread(conn, c -> {
-                        User u = c.loginUser();
+                        User newUser = c.loginUser();
 
-                        users.put(u.getName(), u);
+                        if (users.containsKey(newUser.getName())) {
+                            User existingUser = users.get(newUser.getName());
+
+                            existingUser.getConnection().sendLineToClient("This body has been taken over!");
+                            existingUser.getConnection().close();
+                            existingUser.setConnection(conn);
+
+                        } else {
+                            users.put(newUser.getName(), newUser);
+                        }
 
                         c.sendLineToClient("Welcome To The Mud.");
                     }).start();

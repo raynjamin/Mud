@@ -22,7 +22,11 @@ public class Command {
     }
 
     public static Consumer<Action> interpretCommand(String commandText) {
-        String lowerCommandText = commandText.toLowerCase();
+        String lowerCommandText = commandText.toLowerCase().trim();
+
+        if (commandText == "") {
+            return Global::notFound;
+        }
 
         if (COMMAND_TABLE.containsKey(lowerCommandText)) {
             return COMMAND_TABLE.get(lowerCommandText);

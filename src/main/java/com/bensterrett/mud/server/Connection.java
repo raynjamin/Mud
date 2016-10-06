@@ -66,6 +66,10 @@ public class Connection {
         return new User(name, this);
     }
 
+    public void setSocket(Socket newSocket) {
+        this.socket = newSocket;
+    }
+
     public boolean isClosed() {
         return socket.isClosed();
     }

@@ -55,6 +55,10 @@ public class User {
         return connection;
     }
 
+    public void setConnection(Connection newConnection) {
+        this.connection = newConnection;
+    }
+
     public Room getRoom() {
         return room;
     }
