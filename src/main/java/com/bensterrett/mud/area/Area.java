@@ -9,6 +9,7 @@ import java.util.List;
 public class Area {
     private String title;
     private String description;
+
     private List<Area> areas = new ArrayList<>();
     private List<Room> rooms = new ArrayList<>();
 

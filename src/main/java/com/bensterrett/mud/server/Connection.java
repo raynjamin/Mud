@@ -1,9 +1,16 @@
 package com.bensterrett.mud.server;
 
+import com.bensterrett.mud.commands.Action;
+import com.bensterrett.mud.commands.Command;
+import com.bensterrett.mud.commands.Global;
 import com.bensterrett.mud.entities.User;
+import sun.misc.Regexp;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.bensterrett.mud.server.MudServer.*;
 
 /**
@@ -42,6 +49,8 @@ public class Connection {
             }
         } catch (IOException e) {
             logger.info("Closing socket connection");
+            close();
+//            asyncCommandQueue.put(new Action(Global::quit,  ))
         }
 
         return line;
@@ -59,9 +68,20 @@ public class Connection {
     }
 
     public User loginUser() {
-        sendLineToClient("What is your name?");
+        String name = "";
+        Pattern p = Pattern.compile("[A-Za-z]{3,}");
+        Matcher m;
 
-        String name = readLineFromClient();
+        do {
+            sendLineToClient("What is your name?");
+            name = readLineFromClient();
+
+            m = p.matcher(name);
+
+            if (!m.matches()) {
+                sendLineToClient("Invalid name. A name must be at least three characters and can only contain the letters a-z.");
+            }
+        } while (!m.matches());
 
         return new User(name, this);
     }

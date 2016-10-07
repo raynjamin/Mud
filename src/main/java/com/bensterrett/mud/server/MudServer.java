@@ -4,6 +4,7 @@ import com.bensterrett.mud.area.Area;
 import com.bensterrett.mud.area.Room;
 import com.bensterrett.mud.async.ConnectionThread;
 import com.bensterrett.mud.commands.Action;
+import com.bensterrett.mud.commands.Global;
 import com.bensterrett.mud.entities.User;
 
 import java.io.IOException;
@@ -101,6 +102,8 @@ public class MudServer {
                         } else {
                             users.put(newUser.getName(), newUser);
                         }
+
+                        Global.motd(new Action(Global::motd, newUser, null));
 
                         c.sendLineToClient("Welcome To The Mud.");
                     }).start();

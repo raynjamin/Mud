@@ -1,16 +1,44 @@
 package com.bensterrett.mud.commands;
 
 import com.bensterrett.mud.area.Room;
+import com.bensterrett.mud.ascii.Snippets;
 import com.bensterrett.mud.entities.User;
 import com.bensterrett.mud.server.Connection;
 import com.bensterrett.mud.server.MudServer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * Created by Ben on 9/30/16.
  */
 public class Global {
+    public static void motd(Action action) {
+        File f = new File(ClassLoader.getSystemClassLoader().getResource("motd.txt").getFile());
+
+        try {
+            Scanner fscan = new Scanner(f);
+            StringBuilder buffer = new StringBuilder();
+            fscan.useDelimiter("\\Z");
+
+            buffer.append(Snippets.LINE);
+            buffer.append(fscan.next());
+            buffer.append("\n");
+            buffer.append(Snippets.LINE);
+
+            Connection conn = action.getActor().getConnection();
+            conn.sendLineToClient(buffer.toString());
+
+            conn.sendLineToClient("Press ENTER to continue:");
+            conn.readLineFromClient();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void say(Action action) {
         Connection orig = action.getActor().getConnection();
         String sentence = Arrays.stream(action.getArguments())
@@ -33,6 +61,22 @@ public class Global {
 
     public static void notFound(Action action) {
         action.getActor().getConnection().sendLineToClient("Huh?");
+    }
+
+    public static void who(Action action) {
+        Connection conn = action.getActor().getConnection();
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.append("Online Users: \n");
+        buffer.append("---------------------------------\n");
+        buffer.append("\n");
+        MudServer.users.forEach((s, user) -> {
+            buffer.append(String.format("\t%s\n", s));
+        });
+        buffer.append("\n");
+        buffer.append("---------------------------------\n");
+
+        conn.sendLineToClient(buffer.toString());
     }
 
     public static void quit(Action action) {

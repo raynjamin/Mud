@@ -12,6 +12,8 @@ public class Command {
 
     static {
         COMMAND_TABLE.put("'", Global::say);
+        COMMAND_TABLE.put("motd", Global::motd);
+        COMMAND_TABLE.put("who", Global::who);
         COMMAND_TABLE.put("say", Global::say);
         COMMAND_TABLE.put("quit", Global::quit);
         COMMAND_TABLE.put("look", Global::look);
@@ -23,10 +25,6 @@ public class Command {
 
     public static Consumer<Action> interpretCommand(String commandText) {
         String lowerCommandText = commandText.toLowerCase().trim();
-
-        if (commandText == "") {
-            return Global::notFound;
-        }
 
         if (COMMAND_TABLE.containsKey(lowerCommandText)) {
             return COMMAND_TABLE.get(lowerCommandText);

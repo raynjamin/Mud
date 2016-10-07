@@ -3,15 +3,17 @@ package com.bensterrett.mud.area;
 import com.bensterrett.mud.commands.Action;
 import com.bensterrett.mud.commands.Global;
 import com.bensterrett.mud.entities.User;
+import com.bensterrett.mud.server.MudServer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Ben on 10/4/16.
  */
 public class Room {
-    int number;
+    int id;
     String title;
     String description;
     Area area;
@@ -21,14 +23,11 @@ public class Room {
     Room west;
     Room up;
     Room down;
-    List<User> users = new ArrayList<>();
 
     public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
+        return MudServer.users.values().parallelStream()
+                .filter(user -> user.getRoom().id == id)
+                .collect(Collectors.toList());
     }
 
     public String getTitle() {

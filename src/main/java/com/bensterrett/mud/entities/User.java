@@ -36,10 +36,11 @@ public class User {
                 String[] words = text.split(" ");
                 String[] rest = Arrays.copyOfRange(words, 1, words.length);
 
-                Consumer<Action> function = Command.interpretCommand(words[0]);
-
                 try {
-                    MudServer.asyncCommandQueue.put(new Action(function, this, rest));
+                    if (!text.equals("")) {
+                        Consumer<Action> function = Command.interpretCommand(words[0]);
+                        MudServer.asyncCommandQueue.put(new Action(function, this, rest));
+                    }
                 } catch (InterruptedException e) {
                     MudServer.logger.severe("Interrupted while adding to async command queue.");
                 }
