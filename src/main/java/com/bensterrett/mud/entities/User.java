@@ -4,10 +4,12 @@ import com.bensterrett.mud.area.Room;
 import com.bensterrett.mud.async.ConnectionThread;
 import com.bensterrett.mud.commands.Action;
 import com.bensterrett.mud.commands.Command;
+import com.bensterrett.mud.commands.CommandContext;
 import com.bensterrett.mud.server.Connection;
 import com.bensterrett.mud.server.MudServer;
 
 import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 /**
@@ -17,13 +19,25 @@ public class User {
     private Room room;
     private String name;
     private Connection connection;
+    private CommandContext context = CommandContext.NORMAL;
 
     public User(String name, Connection connection) {
         this.name = name;
         this.connection = connection;
+    }
 
-        Room.changeRooms(this, MudServer.world.getRooms().get(0));
-        beginInputThread();
+    public void performAction(Action a) {
+        if (context != CommandContext.ENTER) {
+            a.runAction();
+        } else {
+            context = CommandContext.NORMAL;
+        }
+    }
+
+    public void sendString(String text){
+        if (context == CommandContext.NORMAL) {
+            connection.sendLineToClient(text);
+        }
     }
 
     public void beginInputThread() {
@@ -39,7 +53,7 @@ public class User {
                 try {
                     if (!text.equals("")) {
                         Consumer<Action> function = Command.interpretCommand(words[0]);
-                        MudServer.asyncCommandQueue.put(new Action(function, this, rest));
+                        MudServer.worldCommandQueue.put(new Action(function, this, rest));
                     }
                 } catch (InterruptedException e) {
                     MudServer.logger.severe("Interrupted while adding to async command queue.");

@@ -50,7 +50,6 @@ public class Connection {
         } catch (IOException e) {
             logger.info("Closing socket connection");
             close();
-//            asyncCommandQueue.put(new Action(Global::quit,  ))
         }
 
         return line;

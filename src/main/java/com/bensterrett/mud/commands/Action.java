@@ -18,6 +18,10 @@ public class Action {
         this.arguments = arguments;
     }
 
+    public void 56runAction() {
+        command.accept(this);
+    }
+
     public String[] getArguments() {
         return arguments;
     }

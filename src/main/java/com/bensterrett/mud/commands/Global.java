@@ -32,7 +32,6 @@ public class Global {
             conn.sendLineToClient(buffer.toString());
 
             conn.sendLineToClient("Press ENTER to continue:");
-            conn.readLineFromClient();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

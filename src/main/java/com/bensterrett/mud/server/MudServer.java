@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class MudServer {
     public static Logger logger = Logger.getAnonymousLogger();
     public static Map<String, User> users = Collections.synchronizedMap(new HashMap<>());
-    public static LinkedBlockingQueue<Action> asyncCommandQueue = new LinkedBlockingQueue<>();
+    public static LinkedBlockingQueue<Action> worldCommandQueue = new LinkedBlockingQueue<>();
     public static Area world = new Area();
 
     static {
@@ -71,14 +71,20 @@ public class MudServer {
                 Action a = null;
 
                 try {
-                    a = asyncCommandQueue.take();
-
+                    a = worldCommandQueue.take();
                 } catch (InterruptedException e) {
                     logger.severe("Could not pull action from queue");
                 }
 
-                a.getCommand().accept(a);
-                a.getActor().getConnection().sendLineToClient(Room.exits(a.getActor().getRoom()));
+                User actor = a.getActor();
+
+                if (actor != null) {
+                    actor.performAction(a);
+                } else {
+                    a.getCommand().accept(a);
+                }
+
+                actor.sendString(Room.exits(actor.getRoom()));
             }
         }).start();
     }
@@ -103,9 +109,17 @@ public class MudServer {
                             users.put(newUser.getName(), newUser);
                         }
 
-                        Global.motd(new Action(Global::motd, newUser, null));
+                        try {
+                            Global.motd(new Action(null, newUser, null));
+                            c.sendLineToClient("Welcome To The Mud.");
+                            worldCommandQueue.put(new Action(Global::look, newUser, null));
 
-                        c.sendLineToClient("Welcome To The Mud.");
+                            Room.changeRooms(newUser, MudServer.world.getRooms().get(0));
+                            newUser.beginInputThread();
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }).start();
 
                 } catch (IOException e) {
